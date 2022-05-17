@@ -14,7 +14,7 @@ Here are some ideas to get you started:
 -->
 
 <a href="https://github.com/wjz304">
-  <img align="center" src="https://github-readme-stats.vercel.app/api?username=wjz304&show_icons=true&line_height=33&theme=synthwave" alt="Alexander Illarionov's GitHub Stats" />
+  <img align="center" src="https://github-readme-stats.vercel.app/api?username=wjz304&show_icons=true&line_height=33&theme=synthwave" alt="Ing's GitHub Stats" />
 </a>
 
 <a href="https://github.com/wjz304">
