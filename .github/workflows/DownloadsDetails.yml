@@ -72,7 +72,7 @@ jobs:
     - name: Get Downloads Details
       uses: jannekem/run-python-script-action@v1.2
       id: details
-      inputs:
+      env:
           repo: ${{ inputs.repository }}
       with:
         script: |
@@ -80,7 +80,7 @@ jobs:
 
           if __name__ == '__main__':
               repo = ''
-              repo = get_input('repo')
+              repo = os.environ['repo']
               if len(repo) > 0:
                   shields = []
                   headers = {'user-agent': 'Python-urllib/3.0'}
