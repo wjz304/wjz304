@@ -56,7 +56,7 @@ jobs:
               res = PM.request('GET', 'https://api.github.com/repos/${{ inputs.repository }}/releases')
               releases = json.loads(res.data.decode('utf-8'))
               if len(releases) > 0:
-                  shields.append('<img src="https://img.shields.io/github/downloads/${{ inputs.repository }}/total"/>\n')
+                  shields.append('<img src="https://img.shields.io/github/downloads/${{ inputs.repository }}/total"/>\n\n')
                   for item in releases:
                       tag = item['tag_name']
                       shields.append('* <img src="https://img.shields.io/github/downloads/${{ inputs.repository }}/{}/total"/>\n'.format(tag))
