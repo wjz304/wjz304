@@ -42,33 +42,63 @@ jobs:
         python -m pip install --upgrade pip setuptools
         pip install datetime urllib3
 
+#    - name: Get Downloads Details
+#      uses: jannekem/run-python-script-action@v1.2
+#      id: details
+#      with:
+#        script: |
+#          import os, json, urllib3
+#
+#          if __name__ == '__main__':
+#              shields = []
+#              headers = {'user-agent': 'Python-urllib/3.0'}
+#              PM = urllib3.PoolManager(headers=headers) 
+#              res = PM.request('GET', 'https://api.github.com/repos/${{ inputs.repository }}/releases')
+#              releases = json.loads(res.data.decode('utf-8'))
+#              if len(releases) > 0:
+#                  shields.append('<img src="https://img.shields.io/github/downloads/${{ inputs.repository }}/total"/>\n\n')
+#                  for item in releases:
+#                      tag = item['tag_name']
+#                      shields.append('* <img src="https://img.shields.io/github/downloads/${{ inputs.repository }}/{}/total"/>\n'.format(tag))
+#                      for asset in item['assets']:
+#                          assetName = asset['name']
+#                          shields.append('* * <img src="https://img.shields.io/github/downloads/${{ inputs.repository }}/{}/{}"/>\n'.format(tag, assetName))
+#              if len(shields) > 0:
+#                  set_output('status', 'true')
+#                  set_output('shields', ''.join(shields))
+#              else:
+#                  set_output('status', 'false')
+      
     - name: Get Downloads Details
       uses: jannekem/run-python-script-action@v1.2
       id: details
       with:
+        input:
+          repository: ${{ inputs.repository }}
         script: |
           import os, json, urllib3
 
           if __name__ == '__main__':
               shields = []
               headers = {'user-agent': 'Python-urllib/3.0'}
-              PM = urllib3.PoolManager(headers=headers) 
-              res = PM.request('GET', 'https://api.github.com/repos/${{ inputs.repository }}/releases')
+              PM = urllib3.PoolManager(headers=headers)
+              repo = get_input('repository')
+              res = PM.request('GET', 'https://api.github.com/repos/{}/releases'.format(repo))
               releases = json.loads(res.data.decode('utf-8'))
               if len(releases) > 0:
-                  shields.append('<img src="https://img.shields.io/github/downloads/${{ inputs.repository }}/total"/>\n\n')
+                  shields.append('<img src="https://img.shields.io/github/downloads/{}/total"/>\n\n'.format(repo))
                   for item in releases:
                       tag = item['tag_name']
-                      shields.append('* <img src="https://img.shields.io/github/downloads/${{ inputs.repository }}/{}/total"/>\n'.format(tag))
+                      shields.append('* <img src="https://img.shields.io/github/downloads/{}/{}/total"/>\n'.format(repo, tag))
                       for asset in item['assets']:
                           assetName = asset['name']
-                          shields.append('* * <img src="https://img.shields.io/github/downloads/${{ inputs.repository }}/{}/{}"/>\n'.format(tag, assetName))
+                          shields.append('* * <img src="https://img.shields.io/github/downloads/{}/{}/{}"/>\n'.format(repo, tag, assetName))
               if len(shields) > 0:
                   set_output('status', 'true')
                   set_output('shields', ''.join(shields))
               else:
                   set_output('status', 'false')
-      
+
 
     - name: Generate release tag
       if: steps.details.outputs.status == 'true'
