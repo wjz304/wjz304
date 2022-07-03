@@ -73,7 +73,6 @@ jobs:
       uses: jannekem/run-python-script-action@v1.2
       id: details
       with:
-        repo: ${{ inputs.repository }}
         script: |
           import os, json, urllib3
 
@@ -81,7 +80,7 @@ jobs:
               shields = []
               headers = {'user-agent': 'Python-urllib/3.0'}
               PM = urllib3.PoolManager(headers=headers)
-              repo = get_input('repo')
+              repo = get_input('repository')
               res = PM.request('GET', 'https://api.github.com/repos/{}/releases'.format(repo))
               releases = json.loads(res.data.decode('utf-8'))
               if len(releases) > 0:
