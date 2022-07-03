@@ -44,6 +44,7 @@ jobs:
 
     - name: Get Downloads Details
       uses: jannekem/run-python-script-action@v1.2
+      id: details
       with:
         script: |
           import os, json, urllib3
@@ -53,39 +54,36 @@ jobs:
               headers = {'user-agent': 'Python-urllib/3.0'}
               PM = urllib3.PoolManager(headers=headers) 
               res = PM.request('GET', 'https://api.github.com/repos/${{ inputs.repository }}/releases')
-              EFI = json.loads(res.data.decode('utf-8'))
-              for item in EFI:
-                  tag = item['tag_name']
-                  shields.append('<img src="https://img.shields.io/github/downloads/${{ inputs.repository }}/{}/total"/>\n\n'.format(tag))
-                  for asset in item['assets']:
-                      assetName = asset['name']
-                      shields.append('* <img src="https://img.shields.io/github/downloads/${{ inputs.repository }}/{}/{}"/>\n'.format(tag, assetName))
-
-              print(shields)
+              releases = json.loads(res.data.decode('utf-8'))
+              if len(releases) > 0:
+                  shields.append('<img src="https://img.shields.io/github/downloads/${{ inputs.repository }}/total"/>\n')
+                  for item in releases:
+                      tag = item['tag_name']
+                      shields.append('* <img src="https://img.shields.io/github/downloads/${{ inputs.repository }}/{}/total"/>\n'.format(tag))
+                      for asset in item['assets']:
+                          assetName = asset['name']
+                          shields.append('* * <img src="https://img.shields.io/github/downloads/${{ inputs.repository }}/{}/{}"/>\n'.format(tag, assetName))
+              if len(shields) > 0:
+                  set_output('status', 'true')
+                  set_output('shields', ''.join(shields))
+              else:
+                  set_output('status', 'false')
       
-      - name: Print Results
-        if: steps.script.outputs.error == 'true'
-        run: |
-          printenv "SCRIPT_STDOUT"
-          printenv "SCRIPT_STDERR"
-        env:
-          SCRIPT_STDOUT: ${{ steps.script.outputs.stdout }}
-          SCRIPT_STDERR: ${{ steps.script.outputs.stderr }} 
 
     - name: Generate release tag
+      if: steps.details.outputs.status == 'true'
       id: tag
       run: |
-        echo "::set-output name=release_tag::$(date +"%Y.%m.%d-%H%M")"
-        echo "::set-output name=status::success"
+        echo "::set-output name=release_tag::${{ inputs.repository }}-$(date +"%Y.%m.%d-%H%M")"
 
 
     - name: Upload results to release
       uses: softprops/action-gh-release@v1
-      if: steps.tag.outputs.status == 'success' && !cancelled()
+      if: steps.details.outputs.status == 'true' && !cancelled()
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        body: ${{ env.SCRIPT_STDOUT }}
+        body: ${{ steps.details.outputs.shields }}
         tag_name: ${{ steps.tag.outputs.release_tag }}
 
 
