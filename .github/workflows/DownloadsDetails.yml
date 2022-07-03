@@ -39,11 +39,11 @@ jobs:
 
     - name: Install dependencies
       run: |
-        python3 -m pip install --upgrade pip setuptools
-        pip3 install datetime urllib3
+        python -m pip install --upgrade pip setuptools
+        pip install datetime urllib3
 
     - name: Get Downloads Details
-      uses: jannekem/run-python-script-action@v1
+      uses: jannekem/run-python-script-action@v1.2
       with:
         script: |
           import os, json, urllib3
