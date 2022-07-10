@@ -1,3 +1,4 @@
+# A loser.
 <!--
 **wjz304/wjz304** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
 
@@ -12,7 +13,7 @@ Here are some ideas to get you started:
 - 😄 Pronouns: ...
 - ⚡ Fun fact: ...
 -->
-
+<!--
 <a href="https://github.com/wjz304">
   <img align="center" src="https://github-readme-stats.vercel.app/api?username=wjz304&show_icons=true&line_height=33&theme=synthwave" alt="Ing's GitHub Stats" />
 </a>
@@ -20,3 +21,4 @@ Here are some ideas to get you started:
 <a href="https://github.com/wjz304">
   <img align="center" src="https://github-readme-stats.vercel.app/api/top-langs/?username=wjz304&langs_count=4&theme=synthwave" />
 </a>
+-->
