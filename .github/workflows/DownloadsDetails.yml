@@ -56,13 +56,13 @@ jobs:
 #              res = PM.request('GET', 'https://api.github.com/repos/${{ inputs.repository }}/releases')
 #              releases = json.loads(res.data.decode('utf-8'))
 #              if len(releases) > 0:
-#                  shields.append('<img src="https://img.shields.io/github/downloads/${{ inputs.repository }}/total"/>\n\n')
+#                  shields.append('<img src="https://img.shields.io/github/downloads/${{ inputs.repository }}/total.svg"/>\n\n')
 #                  for item in releases:
 #                      tag = item['tag_name']
-#                      shields.append('* <img src="https://img.shields.io/github/downloads/${{ inputs.repository }}/{}/total"/>\n'.format(tag))
+#                      shields.append('* <img src="https://img.shields.io/github/downloads/${{ inputs.repository }}/{}/total.svg"/>\n'.format(tag))
 #                      for asset in item['assets']:
 #                          assetName = asset['name']
-#                          shields.append('* * <img src="https://img.shields.io/github/downloads/${{ inputs.repository }}/{}/{}"/>\n'.format(tag, assetName))
+#                          shields.append('* * <img src="https://img.shields.io/github/downloads/${{ inputs.repository }}/{}/{}?sort=semver"/>\n'.format(tag, assetName))
 #              if len(shields) > 0:
 #                  set_output('status', 'true')
 #                  set_output('shields', ''.join(shields))
@@ -88,13 +88,13 @@ jobs:
                   res = PM.request('GET', 'https://api.github.com/repos/{}/releases'.format(repo))
                   releases = json.loads(res.data.decode('utf-8'))
                   if len(releases) > 0:
-                      shields.append('<img src="https://img.shields.io/github/downloads/{}/total"/>\n\n'.format(repo))
+                      shields.append('<img src="https://img.shields.io/github/downloads/{}/total.svg"/>\n\n'.format(repo))
                       for item in releases:
                           tag = item['tag_name']
-                          shields.append('* <img src="https://img.shields.io/github/downloads/{}/{}/total"/>\n'.format(repo, tag))
+                          shields.append('* <img src="https://img.shields.io/github/downloads/{}/{}/total.svg"/>\n'.format(repo, tag))
                           for asset in item['assets']:
                               assetName = asset['name']
-                              shields.append('* * <img src="https://img.shields.io/github/downloads/{}/{}/{}"/>\n'.format(repo, tag, assetName))
+                              shields.append('* * <img src="https://img.shields.io/github/downloads/{}/{}/{}?sort=semver"/>\n'.format(repo, tag, assetName))
                   if len(shields) > 0:
                       set_output('status', 'true')
                       set_output('shields', ''.join(shields))
