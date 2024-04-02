@@ -1,0 +1,135 @@
+#
+# Copyright (c) 2019-2020 P3TERX <https://p3terx.com>
+#
+# This is free software, licensed under the MIT License.
+# See /LICENSE for more information.
+#
+# https://github.com/P3TERX/Actions-OpenWrt
+# Description: Build OpenWrt using GitHub Actions
+#
+# Copyright (C) 2022 Ing
+#
+
+
+name: Repo Downloads Details
+
+on:
+  repository_dispatch:
+  workflow_dispatch:
+    inputs:
+      repository:
+        description: 'Github Repository'
+        required: true
+        default: 'wjz304/Hackintosh-EFI-MSI-Z490i-Unify'
+
+
+jobs:
+  Details:
+    runs-on: ubuntu-latest
+ 
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@main
+
+    - name: Set Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.11"
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip setuptools
+        pip install datetime urllib3
+
+#    - name: Get Downloads Details
+#      uses: jannekem/run-python-script-action@v1.2
+#      id: details
+#      with:
+#        script: |
+#          import os, json, urllib3
+#
+#          if __name__ == '__main__':
+#              shields = []
+#              headers = {'user-agent': 'Python-urllib/3.0'}
+#              PM = urllib3.PoolManager(headers=headers) 
+#              res = PM.request('GET', 'https://api.github.com/repos/${{ inputs.repository }}/releases')
+#              releases = json.loads(res.data.decode('utf-8'))
+#              if len(releases) > 0:
+#                  shields.append('<img src="https://img.shields.io/github/downloads/${{ inputs.repository }}/total.svg"/>\n\n')
+#                  for item in releases:
+#                      tag = item['tag_name']
+#                      shields.append('* <img src="https://img.shields.io/github/downloads/${{ inputs.repository }}/{}/total.svg"/>\n'.format(tag))
+#                      for asset in item['assets']:
+#                          assetName = asset['name']
+#                          shields.append('* * <img src="https://img.shields.io/github/downloads/${{ inputs.repository }}/{}/{}?sort=semver"/>\n'.format(tag, assetName))
+#              if len(shields) > 0:
+#                  set_output('status', 'true')
+#                  set_output('shields', ''.join(shields))
+#              else:
+#                  set_output('status', 'false')
+      
+    - name: Get Downloads Details
+      id: details
+      shell: python
+      run: |
+        # -*- coding: utf-8 -*-
+        import os, json, urllib3
+
+        def set_output(name, value):
+          subprocess.call(["echo '{}={}' >> $GITHUB_ENV".format(name, value)], shell=True)
+
+        if __name__ == '__main__':
+            repo = '${{ inputs.repository }}'
+            if len(repo) > 0:
+                shields = []
+                headers = {'user-agent': 'Python-urllib/3.0'}
+                PM = urllib3.PoolManager(headers=headers)
+                res = PM.request('GET', 'https://api.github.com/repos/{}/releases'.format(repo))
+                releases = json.loads(res.data.decode('utf-8'))
+                if len(releases) > 0:
+                    shields.append('<img src="https://img.shields.io/github/downloads/{}/total.svg"/>\n\n'.format(repo))
+                    for item in releases:
+                        tag = item['tag_name']
+                        shields.append('* <img src="https://img.shields.io/github/downloads/{}/{}/total.svg"/>\n'.format(repo, tag))
+                        for asset in item['assets']:
+                            assetName = asset['name']
+                            shields.append('* * <img src="https://img.shields.io/github/downloads/{}/{}/{}?sort=semver"/>\n'.format(repo, tag, assetName))
+                if len(shields) > 0:
+                    set_output('status', 'true')
+                    set_output('shields', ''.join(shields))
+                else:
+                    set_output('status', 'false')
+
+
+    - name: Generate release tag
+      if: env.status == 'true'
+      id: tag
+      run: |
+        echo "tag=${{ inputs.repository }}-$(date +"%Y.%m.%d-%H%M")" >> $GITHUB_ENV
+
+
+    - name: Upload results to release
+      uses: softprops/action-gh-release@v2
+      if: env.status == 'true' && !cancelled()
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        body: ${{ env.shields }}
+        tag_name: ${{ env.tag }}
+
+
+    - name: Delete workflow runs
+      uses: GitRML/delete-workflow-runs@main
+      with:
+        retain_days: 1
+        keep_minimum_runs: 3
+
+
+#    - name: Remove old Releases
+#      uses: dev-drprasad/delete-older-releases@v0.1.0
+#      with:
+#        keep_latest: 3
+#        delete_tags: true
+#      env:
+#        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
